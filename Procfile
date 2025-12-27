@@ -3,3 +3,4 @@ domain: chat.caution.dev
 source: https://codeberg.org/caution/demo-ai-inference
 memory_mb: 30000
 cpus: 8
+nocache: true

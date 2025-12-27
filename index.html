@@ -1,589 +1,1150 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caution: Verifiable AI Inference Demo</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='120' height='120' rx='40' fill='white'/%3E%3Cline x1='35.3151' y1='72.5648' x2='25.257' y2='89.8071' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='45.1345' y1='90.4808' x2='25.173' y2='90.4808' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='70.7604' y1='43.6464' x2='60.6878' y2='26.4125' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='50.3315' y1='43.3924' x2='60.1424' y2='26.0083' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='5.25' y1='-5.25' x2='25.2115' y2='-5.25' transform='matrix(0.503871 0.863779 0.863779 -0.503871 88.4976 65.3846)' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='5.25' y1='-5.25' x2='25.2115' y2='-5.25' transform='matrix(1 0 0 -1 71.5386 85.2308)' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifiable AI Inference • Caution</title>
+    <meta name="description" content="A live demo of verifiable AI inference built on Caution, running inside a secure enclave with end-to-end encryption." />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Verifiable AI Inference • Caution" />
+    <meta property="og:description" content="A live demo of verifiable AI inference built on Caution, running inside a secure enclave with end-to-end encryption." />
+    <meta property="og:image" content="https://git.distrust.co/caution/website/raw/branch/main/assets/base/thumbnail.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Verifiable AI Inference • Caution" />
+    <meta name="twitter:description" content="A live demo of verifiable AI inference built on Caution, running inside a secure enclave with end-to-end encryption." />
+    <meta name="twitter:image" content="https://git.distrust.co/caution/website/raw/branch/main/assets/base/thumbnail.png" />
+
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='120' height='120' rx='40' fill='white'/%3E%3Cline x1='35.3151' y1='72.5648' x2='25.257' y2='89.8071' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='45.1345' y1='90.4808' x2='25.173' y2='90.4808' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='70.7604' y1='43.6464' x2='60.6878' y2='26.4125' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='50.3315' y1='43.3924' x2='60.1424' y2='26.0083' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='5.25' y1='-5.25' x2='25.2115' y2='-5.25' transform='matrix(0.503871 0.863779 0.863779 -0.503871 88.4976 65.3846)' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='5.25' y1='-5.25' x2='25.2115' y2='-5.25' transform='matrix(1 0 0 -1 71.5386 85.2308)' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+      @import url("https://cdn.jsdelivr.net/fontsource/fonts/plus-jakarta-sans:vf@latest/latin-wght-normal.css");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --color-blue-light: #e8f4fc;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Plus Jakarta Sans Variable", "Plus Jakarta Sans",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      html,
+      body {
+        overflow-x: hidden;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        margin: 0;
+        padding: 0;
+      }
+      .left-container {
+        flex: 1;
+        background: #0f0f0f;
+        display: flex;
+        justify-content: flex-end;
+        padding: 48px 0;
+      }
+      .right-container {
+        flex: 1;
+        background: radial-gradient(
+              circle at 50% 25%,
+              white 0%,
+              transparent 60%
+            )
+            no-repeat,
+          var(--color-blue-light);
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 64px 0 48px 0;
+      }
+      .chat-container {
+        flex: 1;
+        min-width: 0;
+        max-width: 575px;
+        max-height: 800px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .left-panel,
+      .right-panel {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        justify-content: space-between;
+      }
+      .right-panel {
+        align-items: center;
+      }
+      .messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+        margin: 24px 24px 0 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        min-height: 0;
+      }
+      .message {
+        display: flex;
+        gap: 16px;
+        line-height: 1.6;
+        align-items: flex-start;
+      }
+      .message-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .message.user .message-avatar {
+        background: #5436da;
+        color: white;
+      }
+      .message.assistant .message-avatar {
+        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        color: white;
+      }
+      .message-content {
+        flex: 1;
+        color: #353740;
+        font-size: 15px;
+        padding-top: 2px;
+      }
+      .message-content p {
+        margin-bottom: 12px;
+      }
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+      .message-content pre {
+        background: #f7f7f8;
+        border-radius: 8px;
+        padding: 12px 16px;
+        overflow-x: auto;
+        font-family: "SF Mono", Monaco, "Courier New", monospace;
+        font-size: 13px;
+        margin: 12px 0;
+      }
+      .message-content code {
+        font-family: "SF Mono", Monaco, "Courier New", monospace;
+        font-size: 13px;
+        background: #f7f7f8;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      .message-content pre code {
+        background: none;
+        padding: 0;
+      }
+      .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 4px 0;
+      }
+      .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background: #2d2d2d;
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+      }
+      .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes typing {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+        30% {
+          transform: translateY(-4px);
+          opacity: 1;
+        }
+      }
+      .input-area {
+        padding: 16px 24px 20px;
+      }
+      .chat-meta {
+        font-size: 11.45px;
+        color: #8e8ea0;
+        text-align: center;
+        margin: 12px auto 0 auto;
+        line-height: 1.5;
+      }
+      .chat-meta a {
+        color: #f048b5;
+      }
+      .input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: white;
+        border: 1px solid #e5e5e5;
+        border-radius: 50px;
+        padding: 5px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        cursor: text;
+      }
+      .input-wrapper:focus-within {
+        border-color: #2d2d2d;
+        box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.1);
+      }
+      .input-wrapper textarea {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        resize: none;
+        font-family: inherit;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #202123;
+        outline: none;
+        max-height: 200px;
+        margin-left: 16px;
+      }
+      .input-wrapper textarea::placeholder {
+        color: #8e8ea0;
+      }
+      .send-button {
+        width: 48px;
+        height: 48px;
+        background: #2d2d2d;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+        flex-shrink: 0;
+      }
+      .send-button:hover {
+        background: #1a1a1a;
+      }
+      .send-button:disabled {
+        background: #d1d5db;
+        cursor: not-allowed;
+      }
+      .send-button svg {
+        width: 18px;
+        height: 18px;
+        fill: white;
+      }
+      .empty-state {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #8e8ea0;
+        text-align: center;
+      }
+      .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
+      .empty-state-icon svg {
+        width: 28px;
+        height: 28px;
+      }
+      .empty-state h2 {
+        font-size: clamp(1.45rem, 2vw, 1.95rem);
+        font-weight: 600;
+        color: #202123;
+        margin-bottom: 20px;
+      }
+      .empty-state p {
+        font-size: 0.95rem;
+        max-width: 600px;
+        line-height: 1.5;
+      }
+      .sidebar-panel {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        padding: 0;
+      }
+      .sidebar-panel #attestation-container {
+        max-width: 100%;
+      }
+      .info-well h2 {
+        font-size: clamp(1.15rem, 2vw, 1.45rem);
+        font-weight: 600;
+        color: #ffffff;
+        margin: 48px 0 12px 0;
+      }
+      .info-well p {
+        font-size: clamp(0.95rem, 1vw, 1.05rem);
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.75);
+        font-weight: 400;
+      }
+      .info-well p + p {
+        margin-top: 12px;
+      }
+      .info-well a {
+        color: #f048b5;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .info-well a:hover,
+      .info-well a:active {
+        color: #f048b5;
+      }
+      .info-well a span {
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-underline-offset: 3px;
+      }
+      .info-text {
+        max-width: 450px;
+      }
+      .demo-eyebrow {
+        font-family: "SF Mono", Monaco, "Courier New", monospace;
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+        color: rgba(255, 255, 255, 0.5) !important;
+        margin: 72px 0 0 0;
+      }
+      .page-title {
+        font-size: clamp(1.75rem, 3vw, 2.55rem);
+        font-weight: 600;
+        color: #ffffff;
+        margin: 8px 0 28px 0;
+      }
+      .logo-link {
+        align-self: flex-start;
+      }
+      .page-logo {
+        height: clamp(1.3rem, 3.5vw, 2rem);
+        width: auto;
+        color: #ffffff;
+      }
+      .icon-link {
+        display: inline-block;
+        position: relative;
+      }
+      @media (min-width: 600px) {
+        .page-logo,
+        .icon-link {
+          opacity: 0.7;
+          transition: opacity 0.2s;
+        }
+        .page-logo:hover,
+        .icon-link:hover {
+          opacity: 1;
+        }
+      }
+      .icon-link::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 6px 10px;
+        background: #0f0f0f;
+        color: white;
+        font-size: 12px;
+        white-space: nowrap;
+        border-radius: 6px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        margin-bottom: 8px;
+      }
+      .icon-link:hover::after {
+        opacity: 1;
+      }
+      .header-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 72px;
+      }
+      .header-row .icon-links {
+        display: none;
+      }
+      .icon-links {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+      .icon-links-footer {
+        display: flex;
+        margin-top: auto;
+      }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .container {
+        width: 100%;
+        display: flex;
+        min-height: 100vh;
+      }
+      .left-content,
+      .right-content {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .left-content {
+        max-width: 675px;
+        padding: 0 32px 0 156px;
+        height: 100%;
+      }
+      .right-content {
+        max-width: 835px;
+        padding: 0 132px 0 112px;
+        height: 50%;
+      }
+
+      /* ==========================================================================
+         MEDIA QUERIES
+         ========================================================================== */
+
+      /* Desktop (1024px - 1399px) */
+
+      @media (max-width: 1600px) {
+        .demo-eyebrow {
+          margin: 8px 0 0 0;
         }
 
-        :root {
-            --color-blue-light: #e8f4fc;
+        .left-content,
+        .right-content {
+          max-width: 100%;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: radial-gradient(circle at 50% 25%, white 0%, transparent 60%) no-repeat, var(--color-blue-light);
-            min-height: 100vh;
-            display: flex;
-            align-items: stretch;
-            justify-content: center;
-            padding: 20px;
+        .left-content {
+          padding: 0 24px 0 172px;
+        }
+        .right-content {
+          padding: 0 96px;
         }
 
-        .main-layout {
-            width: 100%;
-            max-width: 1400px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            height: calc(100vh - 40px);
+        .page-title {
+          margin: 8px 0 16px 0;
+        }
+      }
+
+      @media (max-width: 1399px) {
+        .chat-meta {
+          max-width: 385px;
+        }
+        .empty-state p {
+          max-width: 250px !important;
+          color: #8e8ea0;
+        }
+        .demo-eyebrow {
+          margin: 24px 0 0 0;
+        }
+        .left-content {
+          padding: 0 clamp(100px, 2vw, 172px);
+        }
+        .right-content {
+          padding: 0 72px;
+        }
+      }
+
+      @media (max-width: 1180px) {
+        .demo-eyebrow {
+          margin: 0 !important;
+          font-size: 0.95rem;
+        }
+        .left-content {
+          padding: 0 48px;
+        }
+
+        .right-content {
+          padding: 0 32px;
+        }
+      }
+
+      /* Tablet: stack layout */
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+        }
+        .left-container,
+        .right-container {
+          flex: none;
+          width: 100%;
+        }
+        .right-container {
+          padding: 48px;
+        }
+
+        .left-content,
+        .chat-container {
+          max-width: 600px;
+          width: 100%;
+          margin: 0 auto;
+        }
+
+        .left-content {
+          padding: 0;
         }
 
         .chat-container {
-            flex: 1;
-            min-width: 0;
-            max-width: 700px;
-            max-height: 800px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+          max-height: none;
+          min-height: 50vh;
         }
 
-        .sidebar {
-            width: 360px;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+        .demo-eyebrow {
+          margin-top: 12px !important;
+          font-size: 0;
         }
 
-        @media (max-width: 900px) {
-            body {
-                padding: 12px;
-            }
-            .main-layout {
-                flex-direction: column;
-                height: auto;
-                gap: 12px;
-            }
-            .sidebar {
-                width: 100%;
-                order: -1;
-            }
-            .chat-container {
-                max-width: 100%;
-                max-height: none;
-                min-height: 60vh;
-            }
-            .input-area {
-                padding: 12px 16px 16px;
-            }
-            .input-wrapper {
-                gap: 8px;
-                padding: 10px 12px;
-            }
+        .right-content {
+          max-width: 100%;
+          margin: 0 auto;
+        }
+        .left-panel,
+        .right-panel {
+          width: 100%;
+          gap: 24px;
+        }
+        .logo-link {
+          margin-bottom: 0;
+        }
+        .header-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+        }
+        .header-row .icon-links {
+          display: flex;
+        }
+        .icon-links-footer {
+          display: none;
+        }
+        .page-title {
+          margin: 8px 0 16px 0;
+        }
+        .info-text {
+          max-width: 100%;
+        }
+        .info-well h2 {
+          margin: 24px 0 8px 0;
+        }
+      }
+
+      /* Small tablet */
+      @media (max-width: 750px) {
+        .left-content {
+          max-width: 100%;
+          padding: 0 32px;
         }
 
-        .chat-header {
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .chat-container {
+          max-width: 100%;
+          max-height: none;
+          min-height: 50vh;
         }
 
-        .chat-logo {
-            height: 16px;
-            width: auto;
-            color: #000;
+        .left-container {
+          padding: 32px 32px 24px 32px;
         }
-
-        .chat-url {
-            font-size: 14px;
-            color: #8e8ea0;
-            margin-left: auto;
+        .right-container {
+          padding: 24px 32px 32px 32px;
         }
-
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-            margin: 0 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            background: #f7f7f8;
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            min-height: 0;
-        }
-
-        .message {
-            display: flex;
-            gap: 16px;
-            line-height: 1.6;
-            align-items: flex-start;
-        }
-
-        .message-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .message.user .message-avatar {
-            background: #5436da;
-            color: white;
-        }
-
-        .message.assistant .message-avatar {
-            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-            color: white;
-        }
-
-        .message-content {
-            flex: 1;
-            color: #353740;
-            font-size: 15px;
-            padding-top: 2px;
-        }
-
-        .message-content p {
-            margin-bottom: 12px;
-        }
-
-        .message-content p:last-child {
-            margin-bottom: 0;
-        }
-
-        .message-content pre {
-            background: #f7f7f8;
-            border-radius: 8px;
-            padding: 12px 16px;
-            overflow-x: auto;
-            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-            font-size: 13px;
-            margin: 12px 0;
-        }
-
-        .message-content code {
-            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-            font-size: 13px;
-            background: #f7f7f8;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .message-content pre code {
-            background: none;
-            padding: 0;
-        }
-
-        .typing-indicator {
-            display: flex;
-            gap: 4px;
-            padding: 4px 0;
-        }
-
-        .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            background: #2d2d2d;
-            border-radius: 50%;
-            animation: typing 1.4s infinite ease-in-out;
-        }
-
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.4;
-            }
-            30% {
-                transform: translateY(-4px);
-                opacity: 1;
-            }
-        }
-
         .input-area {
-            padding: 16px 24px 24px;
+          padding: 12px 16px 16px;
         }
-
-        .chat-meta {
-            font-size: 12px;
-            color: #8e8ea0;
-            text-align: center;
-            margin: 8px 0 0 0;
-        }
-
-        .chat-meta a {
-            color: #5436da;
-        }
-
         .input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #f7f7f8;
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            padding: 12px 16px;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            cursor: text;
+          gap: 8px;
+          padding: 8px 10px;
+        }
+        .messages {
+          padding: 16px;
+          margin: 16px 16px 0 16px;
+        }
+      }
+
+      /* Mobile (0px - 599px) */
+      @media (max-width: 599px) {
+        .left-content, .right-content {
+          padding: 0 16px;
         }
 
-        .input-wrapper:focus-within {
-            border-color: #2d2d2d;
-            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.1);
+        .left-container {
+          padding: 24px 20px 20px 20px;
         }
-
+        .right-container {
+          padding: 20px 20px 24px 20px;
+        }
+        .left-panel {
+          gap: 20px;
+        }
+        .logo-link {
+          margin-bottom: 16px;
+        }
+        .send-button {
+          width: 42px;
+          height: 42px;
+        }
         .input-wrapper textarea {
-            flex: 1;
-            min-width: 0;
-            border: none;
-            background: transparent;
-            resize: none;
-            font-family: inherit;
-            font-size: 15px;
-            line-height: 1.5;
-            color: #202123;
-            outline: none;
-            max-height: 200px;
+          margin-left: 10px;
         }
+        .messages {
+          padding: 12px;
+          margin: 12px 12px 0 12px;
+          gap: 16px;
+        }
+        .message {
+          gap: 12px;
+        }
+        .empty-state-icon {
+          width: 52px;
+          height: 52px;
+        }
+        .empty-state-icon svg {
+          width: 24px;
+          height: 24px;
+        }
+        .chat-container {
+          min-height: 45vh;
+        }
+      }
 
-        .input-wrapper textarea::placeholder {
-            color: #8e8ea0;
+       @media (max-width: 460px) {
+        .left-content, .right-content {
+          padding: 0;
         }
+      }
+
+      /* Small mobile (0px - 415px) */
+      @media (max-width: 415px) {
 
         .send-button {
-            width: 32px;
-            height: 32px;
-            background: #2d2d2d;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-            flex-shrink: 0;
+          width: 38px;
+          height: 38px;
         }
-
-        .send-button:hover {
-            background: #1a1a1a;
-        }
-
-        .send-button:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
-        }
-
         .send-button svg {
-            width: 16px;
-            height: 16px;
-            fill: white;
+          width: 16px;
+          height: 16px;
         }
-
-        .empty-state {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #8e8ea0;
-            text-align: center;
-            padding: 40px;
+        .input-wrapper textarea {
+          margin-left: 8px;
+          font-size: 14px;
         }
-
+        .messages {
+          padding: 10px;
+          margin: 10px 10px 0 10px;
+        }
+        .message-avatar {
+          width: 24px;
+          height: 24px;
+          font-size: 10px;
+        }
         .empty-state-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 16px;
+          width: 56px;
+          height: 56px;
         }
-
         .empty-state-icon svg {
-            width: 24px;
-            height: 24px;
-            fill: white;
+          width: 24px;
+          height: 24px;
         }
-
-        .empty-state h2 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #202123;
-            margin-bottom: 8px;
-        }
-
-        .empty-state p {
-            font-size: 14px;
-            max-width: 300px;
-        }
-
-        .sidebar-panel {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            padding: 20px;
-        }
-
-        .sidebar-panel #attestation-container {
-            max-width: 100%;
-        }
-
-        .info-well {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            padding: 20px;
-        }
-
-        .info-well h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #202123;
-            margin: 0 0 8px 0;
-        }
-
-        .info-well p {
-            font-size: 14px;
-            line-height: 1.6;
-            color: #353740;
-            margin: 0;
-        }
-
-        .info-well p + p {
-            margin-top: 12px;
-        }
-
-        .info-well p.info-meta {
-            font-size: 13px;
-            color: #8e8ea0;
-            margin-top: 8px;
-        }
-
-        .info-well p.info-warning {
-            font-size: 13px;
-            color: #dc6b6b;
-            margin-top: 8px;
-        }
-
-        .info-well a {
-            color: #5436da;
-        }
+      }
     </style>
-</head>
-<body>
-    <div class="main-layout">
-        <div class="chat-container">
-            <div class="chat-header">
-                <svg class="chat-logo" viewBox="0 0 781 137" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M32.6622 94.4032L15.5068 123.956" stroke="currentColor" stroke-width="18.5" stroke-linecap="round"/>
-                    <path d="M49.8175 126.395H15.5068" stroke="currentColor" stroke-width="18.5" stroke-linecap="round"/>
-                    <path d="M94.4216 46.0172L76.4084 15.046" stroke="currentColor" stroke-width="18.5" stroke-linecap="round"/>
-                    <path d="M59.2531 44.6185L75.5506 15.599" stroke="currentColor" stroke-width="18.5" stroke-linecap="round"/>
-                    <path d="M121.581 95.0713L138.948 124.89" stroke="currentColor" stroke-width="18.5" stroke-linecap="round"/>
-                    <path d="M104.715 126.395H139.026" stroke="currentColor" stroke-width="18.5" stroke-linecap="round"/>
-                    <path d="M250.385 133.452C216.018 133.452 190.567 106.985 190.567 70.939C190.567 34.8927 215.856 8.58875 250.385 8.58875C275.674 8.58875 294.317 23.3644 300.477 39.7639L283.294 47.8824C278.106 34.8927 266.272 25.9624 250.385 25.9624C226.393 25.9624 209.696 44.1479 209.696 70.939C209.696 97.8924 226.393 115.916 250.385 115.916C266.272 115.916 278.106 107.148 283.294 94.1579L300.477 102.276C294.317 118.676 275.674 133.452 250.385 133.452ZM340.341 133.482C322.23 133.482 310.047 123.423 310.047 107.921C310.047 93.5744 319.596 83.0203 340.177 79.5573L368.495 74.9399V71.4768C368.495 62.7367 361.416 56.4702 350.714 56.4702C340.835 56.4702 333.097 62.0771 329.639 70.3225L314.163 62.5718C319.267 49.5441 334.249 40.3093 351.208 40.3093C372.282 40.3093 387.1 53.0072 387.1 71.4768V131.503H369.318V121.114C362.568 129.029 352.689 133.482 340.341 133.482ZM329.475 107.262C329.475 114.023 335.237 118.805 343.305 118.805C358.287 118.805 368.495 108.086 368.495 94.3989V89.6166L343.799 93.9042C333.92 95.5533 329.475 100.336 329.475 107.262ZM435.691 133.482C415.44 133.482 402.104 118.805 402.104 97.3673V42.2882H420.708V95.7182C420.708 108.086 428.776 116.167 440.301 116.167C451.99 116.167 460.223 107.921 460.223 94.8937V42.2882H478.663V131.503H461.046V120.454C456.106 128.865 446.887 133.482 435.691 133.482ZM533.972 132.493C515.202 132.493 504.501 121.444 504.501 102.315V59.1088H488.86V42.2882H491.329C499.561 42.2882 504.501 37.1761 504.501 28.7658V21.8397H523.105V42.2882H543.356V59.1088H523.105V101.49C523.105 110.56 527.221 116.002 537.923 116.002C539.57 116.002 541.875 115.837 544.015 115.507V131.503C541.051 131.998 536.935 132.493 533.972 132.493ZM557.232 30.0851V8.6471H575.837V30.0851H557.232ZM557.232 131.503V42.2882H575.837V131.503H557.232ZM635.622 133.482C609.773 133.482 589.028 113.693 589.028 86.8132C589.028 59.9333 609.443 40.3093 635.622 40.3093C661.635 40.3093 682.051 59.9333 682.051 86.8132C682.051 114.023 661.141 133.482 635.622 133.482ZM635.622 116.167C651.098 116.167 662.788 103.634 662.788 86.8132C662.788 69.9927 651.098 57.6246 635.622 57.6246C619.981 57.6246 608.456 69.9927 608.456 86.8132C608.456 103.634 619.981 116.167 635.622 116.167ZM695.275 131.503V42.2882H713.056V53.1721C718.16 44.7618 727.216 40.3093 738.247 40.3093C757.675 40.3093 771.834 54.1615 771.834 73.7855V131.503H753.394V78.8977C753.394 65.7051 745.326 57.6246 733.637 57.6246C722.112 57.6246 713.88 65.7051 713.88 78.8977V131.503H695.275Z" fill="currentColor"/>
+  </head>
+  <body>
+    <div class="container">
+      <div class="left-container">
+        <div class="left-content">
+          <div class="header-row">
+            <a
+              href="https://caution.co/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="logo-link"
+            >
+              <svg
+                class="page-logo"
+                viewBox="0 0 781 137"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M32.6622 94.4032L15.5068 123.956"
+                  stroke="currentColor"
+                  stroke-width="18.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M49.8175 126.395H15.5068"
+                  stroke="currentColor"
+                  stroke-width="18.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M94.4216 46.0172L76.4084 15.046"
+                  stroke="currentColor"
+                  stroke-width="18.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M59.2531 44.6185L75.5506 15.599"
+                  stroke="currentColor"
+                  stroke-width="18.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M121.581 95.0713L138.948 124.89"
+                  stroke="currentColor"
+                  stroke-width="18.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M104.715 126.395H139.026"
+                  stroke="currentColor"
+                  stroke-width="18.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M250.385 133.452C216.018 133.452 190.567 106.985 190.567 70.939C190.567 34.8927 215.856 8.58875 250.385 8.58875C275.674 8.58875 294.317 23.3644 300.477 39.7639L283.294 47.8824C278.106 34.8927 266.272 25.9624 250.385 25.9624C226.393 25.9624 209.696 44.1479 209.696 70.939C209.696 97.8924 226.393 115.916 250.385 115.916C266.272 115.916 278.106 107.148 283.294 94.1579L300.477 102.276C294.317 118.676 275.674 133.452 250.385 133.452ZM340.341 133.482C322.23 133.482 310.047 123.423 310.047 107.921C310.047 93.5744 319.596 83.0203 340.177 79.5573L368.495 74.9399V71.4768C368.495 62.7367 361.416 56.4702 350.714 56.4702C340.835 56.4702 333.097 62.0771 329.639 70.3225L314.163 62.5718C319.267 49.5441 334.249 40.3093 351.208 40.3093C372.282 40.3093 387.1 53.0072 387.1 71.4768V131.503H369.318V121.114C362.568 129.029 352.689 133.482 340.341 133.482ZM329.475 107.262C329.475 114.023 335.237 118.805 343.305 118.805C358.287 118.805 368.495 108.086 368.495 94.3989V89.6166L343.799 93.9042C333.92 95.5533 329.475 100.336 329.475 107.262ZM435.691 133.482C415.44 133.482 402.104 118.805 402.104 97.3673V42.2882H420.708V95.7182C420.708 108.086 428.776 116.167 440.301 116.167C451.99 116.167 460.223 107.921 460.223 94.8937V42.2882H478.663V131.503H461.046V120.454C456.106 128.865 446.887 133.482 435.691 133.482ZM533.972 132.493C515.202 132.493 504.501 121.444 504.501 102.315V59.1088H488.86V42.2882H491.329C499.561 42.2882 504.501 37.1761 504.501 28.7658V21.8397H523.105V42.2882H543.356V59.1088H523.105V101.49C523.105 110.56 527.221 116.002 537.923 116.002C539.57 116.002 541.875 115.837 544.015 115.507V131.503C541.051 131.998 536.935 132.493 533.972 132.493ZM557.232 30.0851V8.6471H575.837V30.0851H557.232ZM557.232 131.503V42.2882H575.837V131.503H557.232ZM635.622 133.482C609.773 133.482 589.028 113.693 589.028 86.8132C589.028 59.9333 609.443 40.3093 635.622 40.3093C661.635 40.3093 682.051 59.9333 682.051 86.8132C682.051 114.023 661.141 133.482 635.622 133.482ZM635.622 116.167C651.098 116.167 662.788 103.634 662.788 86.8132C662.788 69.9927 651.098 57.6246 635.622 57.6246C619.981 57.6246 608.456 69.9927 608.456 86.8132C608.456 103.634 619.981 116.167 635.622 116.167ZM695.275 131.503V42.2882H713.056V53.1721C718.16 44.7618 727.216 40.3093 738.247 40.3093C757.675 40.3093 771.834 54.1615 771.834 73.7855V131.503H753.394V78.8977C753.394 65.7051 745.326 57.6246 733.637 57.6246C722.112 57.6246 713.88 65.7051 713.88 78.8977V131.503H695.275Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+            <div class="icon-links">
+              <a
+                href="https://codeberg.org/caution/demo-ai-inference"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="icon-link"
+                data-tooltip="View source code"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 92 92"
+                  fill="#ffffff"
+                >
+                  <defs>
+                    <clipPath id="git-icon-clip">
+                      <path d="M0 .113h91.887V92H0Zm0 0" />
+                    </clipPath>
+                  </defs>
+                  <g clip-path="url(#git-icon-clip)">
+                    <path
+                      d="M90.156 41.965 50.036 1.848a5.913 5.913 0 0 0-8.368 0l-8.332 8.332 10.566 10.566a7.03 7.03 0 0 1 7.23 1.684 7.043 7.043 0 0 1 1.673 7.277l10.183 10.184a7.026 7.026 0 0 1 7.278 1.672 7.04 7.04 0 0 1 0 9.957 7.045 7.045 0 0 1-9.961 0 7.038 7.038 0 0 1-1.532-7.66l-9.5-9.497V59.36a7.04 7.04 0 0 1 1.86 11.29 7.04 7.04 0 0 1-9.957 0 7.04 7.04 0 0 1 0-9.958 7.034 7.034 0 0 1 2.308-1.539V33.926a7.001 7.001 0 0 1-2.308-1.535 7.049 7.049 0 0 1-1.516-7.7L29.242 14.273 1.734 41.777a5.918 5.918 0 0 0 0 8.371L41.855 90.27a5.92 5.92 0 0 0 8.368 0l39.933-39.934a5.925 5.925 0 0 0 0-8.371"
+                    />
+                  </g>
                 </svg>
-                <span class="chat-url">https://caution.co</span>
+              </a>
+              <a
+                href="https://caution.co/blog/introducing-caution.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="icon-link"
+                data-tooltip="Read the blog post"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 640 640"
+                  fill="#ffffff"
+                >
+                  <path
+                    d="M320 205.3L320 514.6L320.5 514.4C375.1 491.7 433.7 480 492.8 480L512 480L512 160L492.8 160C450.6 160 408.7 168.4 369.7 184.6C352.9 191.6 336.3 198.5 320 205.3zM294.9 125.5L320 136L345.1 125.5C391.9 106 442.1 96 492.8 96L528 96C554.5 96 576 117.5 576 144L576 496C576 522.5 554.5 544 528 544L492.8 544C442.1 544 391.9 554 345.1 573.5L332.3 578.8C324.4 582.1 315.6 582.1 307.7 578.8L294.9 573.5C248.1 554 197.9 544 147.2 544L112 544C85.5 544 64 522.5 64 496L64 144C64 117.5 85.5 96 112 96L147.2 96C197.9 96 248.1 106 294.9 125.5z"
+                  />
+                </svg>
+              </a>
             </div>
-
-            <div class="messages" id="messages">
-                <div class="empty-state" id="emptyState">
-                    <div class="empty-state-icon">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
-                        </svg>
-                    </div>
-                    <h2>Demo: Verifiable AI Inference</h2>
-                    <p>Type a message to interact with the verifiable LLM.</p>
-                </div>
-            </div>
-
-            <div class="input-area">
-                <div class="input-wrapper" onclick="document.getElementById('messageInput').focus()">
-                    <textarea
-                        id="messageInput"
-                        placeholder="Send a message..."
-                        rows="1"
-                        onkeydown="handleKeyDown(event)"
-                    ></textarea>
-                    <button class="send-button" id="sendButton" onclick="sendMessage()">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <p class="chat-meta">Powered by <a href="https://github.com/ggerganov/llama.cpp">llama.cpp</a>. Phi-3.1-mini (3.8B).</p>
-            </div>
-        </div>
-
-        <div class="sidebar">
+          </div>
+          <div class="left-panel">
             <div class="info-well">
-                <h3>What is this?</h3>
-                <p>This is a demo AI inference application running inside a secure enclave. Your conversation is end-to-end encrypted and only decryptable by you and the enclave.</p>
-                <p>The main differentiators versus other confidential compute:</p>
-                <p>• <a href="https://codeberg.org/caution/platform/wiki/Verifying-an-app">verifiability</a>
-                <p>• true <a href="https://git.distrust.co/public/steve">end-to-end encryption</a>.</p>
-                <p class="info-meta">This agent runs on CPU which means it runs slowly. GPU support is in active development.</p>
-                <p class="info-warning">This software is currently in alpha and not production ready.</p>
+              <p class="demo-eyebrow">DEMO</p>
+              <h1 class="page-title">Verifiable AI inference</h1>
+
+              <div class="info-text" id="intro-section">
+                <p>
+                  This is a live demo of verifiable AI inference built on
+                  Caution, running inside a secure enclave. The conversation is
+                  end-to-end encrypted and only decryptable by you and the
+                  enclave.
+                </p>
+              </div>
+
+              <div class="info-text" id="why-section">
+                <h2>Problem</h2>
+                <p>
+                  Most confidential compute solutions can prove that code hasn't changed, but not what code was originally
+                  loaded, and they still expose data to untrusted systems outside of the enclave.
+                </p>
+              </div>
+
+              <div class="info-text" id="how-section">
+                <h2>Solution</h2>
+                <p>
+                  Caution combines
+                  <a
+                    href="https://codeberg.org/caution/platform/wiki/Verifying-an-app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    ><span>verifiability</span
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="vertical-align: middle; margin-left: 4px"
+                    >
+                      <path d="M15 3h6v6" />
+                      <path d="M10 14 21 3" />
+                      <path
+                        d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                      /></svg
+                  ></a>
+                  and
+                  <a
+                    href="https://git.distrust.co/public/steve"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    ><span>true end-to-end encryption</span
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="vertical-align: middle; margin-left: 4px"
+                    >
+                      <path d="M15 3h6v6" />
+                      <path d="M10 14 21 3" />
+                      <path
+                        d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                      /></svg
+                  ></a>
+                  to prove what code runs inside the enclave, and keep
+                  conversations private.
+                </p>
+              </div>
             </div>
 
             <div class="sidebar-panel">
-                <div id="attestation-container"></div>
+              <div id="attestation-container"></div>
             </div>
 
-            <div class="sidebar-panel">
-                <div style="font-size: 13px;">
-                    <a href="https://codeberg.org/caution/demo-ai-inference" style="color: #5436da; text-decoration: none;">View Source Code</a>
-                </div>
+            <div class="icon-links icon-links-footer">
+              <a
+                href="https://codeberg.org/caution/demo-ai-inference"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="icon-link"
+                data-tooltip="View source code"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 92 92"
+                  fill="#ffffff"
+                >
+                  <defs>
+                    <clipPath id="git-icon-clip-2">
+                      <path d="M0 .113h91.887V92H0Zm0 0" />
+                    </clipPath>
+                  </defs>
+                  <g clip-path="url(#git-icon-clip-2)">
+                    <path
+                      d="M90.156 41.965 50.036 1.848a5.913 5.913 0 0 0-8.368 0l-8.332 8.332 10.566 10.566a7.03 7.03 0 0 1 7.23 1.684 7.043 7.043 0 0 1 1.673 7.277l10.183 10.184a7.026 7.026 0 0 1 7.278 1.672 7.04 7.04 0 0 1 0 9.957 7.045 7.045 0 0 1-9.961 0 7.038 7.038 0 0 1-1.532-7.66l-9.5-9.497V59.36a7.04 7.04 0 0 1 1.86 11.29 7.04 7.04 0 0 1-9.957 0 7.04 7.04 0 0 1 0-9.958 7.034 7.034 0 0 1 2.308-1.539V33.926a7.001 7.001 0 0 1-2.308-1.535 7.049 7.049 0 0 1-1.516-7.7L29.242 14.273 1.734 41.777a5.918 5.918 0 0 0 0 8.371L41.855 90.27a5.92 5.92 0 0 0 8.368 0l39.933-39.934a5.925 5.925 0 0 0 0-8.371"
+                    />
+                  </g>
+                </svg>
+              </a>
+              <a
+                href="https://caution.co/blog/introducing-caution.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="icon-link"
+                data-tooltip="Read the blog post"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 640 640"
+                  fill="#ffffff"
+                >
+                  <path
+                    d="M320 205.3L320 514.6L320.5 514.4C375.1 491.7 433.7 480 492.8 480L512 480L512 160L492.8 160C450.6 160 408.7 168.4 369.7 184.6C352.9 191.6 336.3 198.5 320 205.3zM294.9 125.5L320 136L345.1 125.5C391.9 106 442.1 96 492.8 96L528 96C554.5 96 576 117.5 576 144L576 496C576 522.5 554.5 544 528 544L492.8 544C442.1 544 391.9 554 345.1 573.5L332.3 578.8C324.4 582.1 315.6 582.1 307.7 578.8L294.9 573.5C248.1 554 197.9 544 147.2 544L112 544C85.5 544 64 522.5 64 496L64 144C64 117.5 85.5 96 112 96L147.2 96C197.9 96 248.1 106 294.9 125.5z"
+                  />
+                </svg>
+              </a>
             </div>
+          </div>
         </div>
+      </div>
+
+      <div class="right-container">
+        <div class="right-content">
+          <div class="right-panel">
+            <div class="chat-container">
+              <div class="messages" id="messages">
+                <div class="empty-state" id="emptyState">
+                  <div class="empty-state-icon">
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      stroke="white"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+                      />
+                    </svg>
+                  </div>
+                  <h2>Verifiable AI Chat</h2>
+                  <p>
+                    Ask a question to see verifiable AI inference in action.
+                  </p>
+                </div>
+              </div>
+
+              <div class="input-area">
+                <label for="messageInput" class="visually-hidden"
+                  >Message</label
+                >
+                <div
+                  class="input-wrapper"
+                  onclick="document.getElementById('messageInput').focus()"
+                >
+                  <textarea
+                    id="messageInput"
+                    placeholder="Ask something"
+                    rows="1"
+                    onkeydown="handleKeyDown(event)"
+                  ></textarea>
+                  <button
+                    class="send-button"
+                    id="sendButton"
+                    onclick="sendMessage()"
+                    aria-label="Send message"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                    </svg>
+                  </button>
+                </div>
+                <p class="chat-meta">
+                  Powered by
+                  <a href="https://github.com/ggerganov/llama.cpp">llama.cpp</a
+                  >. Phi-3.1-mini (3.8B). Runs on CPU today. GPU support coming.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script type="module">
-        import { registerEnclaveServiceWorker } from './register.js';
+      import { registerEnclaveServiceWorker } from "./register.js";
 
-        let client = null;
-        let widget = null;
+      let client = null;
+      let widget = null;
 
-        async function initEnclave() {
-            // Always render the widget first
-            try {
-                const { renderInline } = await import('./attestation-widget.js');
-                widget = renderInline('#attestation-container', {
-                    attestationUrl: '/attestation',
-                    autoVerify: false,
-                    onVerified: () => {
-                        console.log('Attestation verified');
-                    }
-                });
-            } catch (widgetError) {
-                console.error('Widget load error:', widgetError);
-            }
-
-            // Then try to set up the service worker
-            try {
-                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const passthroughPaths = ['/', '/enclave-sw.js', '/register.js', '/attestation-widget.js'];
-                if (isDev) {
-                    passthroughPaths.push('/v1/*');
-                }
-
-                client = await registerEnclaveServiceWorker({
-                    config: {
-                        passthroughPaths
-                    }
-                });
-
-                client.on('initialized', () => {
-                    console.log('Enclave initialized');
-                });
-
-                await client.reset();
-                await client.initialize();
-
-                // Now verify attestation
-                if (widget) {
-                    widget.verify();
-                }
-
-            } catch (error) {
-                console.error('Service worker error:', error);
-                if (widget) {
-                    widget.verify();
-                }
-            }
+      async function initEnclave() {
+        // Always render the widget first
+        try {
+          const { renderInline } = await import("./attestation-widget.js");
+          widget = renderInline("#attestation-container", {
+            attestationUrl: "/attestation",
+            autoVerify: false,
+            onVerified: () => {
+              console.log("Attestation verified");
+            },
+          });
+        } catch (widgetError) {
+          console.error("Widget load error:", widgetError);
         }
 
-        initEnclave();
+        // Then try to set up the service worker
+        try {
+          const isDev =
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1";
+          const passthroughPaths = [
+            "/",
+            "/enclave-sw.js",
+            "/register.js",
+            "/attestation-widget.js",
+          ];
+          if (isDev) {
+            passthroughPaths.push("/v1/*");
+          }
+
+          client = await registerEnclaveServiceWorker({
+            config: {
+              passthroughPaths,
+            },
+          });
+
+          client.on("initialized", () => {
+            console.log("Enclave initialized");
+          });
+
+          await client.reset();
+          await client.initialize();
+
+          // Now verify attestation
+          if (widget) {
+            widget.verify();
+          }
+        } catch (error) {
+          console.error("Service worker error:", error);
+          if (widget) {
+            widget.verify();
+          }
+        }
+      }
+
+      initEnclave();
     </script>
 
     <script>
-        const API_URL = '';
+      const API_URL = "";
 
-        const messagesContainer = document.getElementById('messages');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const emptyState = document.getElementById('emptyState');
+      const messagesContainer = document.getElementById("messages");
+      const messageInput = document.getElementById("messageInput");
+      const sendButton = document.getElementById("sendButton");
+      const emptyState = document.getElementById("emptyState");
 
-        const SYSTEM_PROMPT = `You are a helpful AI assistant. Answer questions directly and concisely.`;
+      const SYSTEM_PROMPT = `You are a helpful AI assistant. Answer questions directly and concisely.`;
 
-        let conversationHistory = [
-            { role: 'system', content: SYSTEM_PROMPT }
-        ];
-        let isGenerating = false;
+      let conversationHistory = [{ role: "system", content: SYSTEM_PROMPT }];
+      let isGenerating = false;
 
-        // Auto-resize textarea
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
-        });
+      // Auto-resize textarea
+      messageInput.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = Math.min(this.scrollHeight, 200) + "px";
+      });
 
-        function handleKeyDown(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
+      function handleKeyDown(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          sendMessage();
+        }
+      }
+
+      function addMessage(role, content) {
+        if (emptyState) {
+          emptyState.remove();
         }
 
-        function addMessage(role, content) {
-            if (emptyState) {
-                emptyState.remove();
-            }
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${role}`;
 
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
+        const avatar = document.createElement("div");
+        avatar.className = "message-avatar";
+        avatar.textContent = role === "user" ? "U" : "AI";
 
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = role === 'user' ? 'U' : 'AI';
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "message-content";
+        contentDiv.innerHTML = formatMessage(content);
 
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            contentDiv.innerHTML = formatMessage(content);
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(contentDiv);
+        messagesContainer.appendChild(messageDiv);
 
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(contentDiv);
-            messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        return contentDiv;
+      }
 
-            return contentDiv;
+      function addTypingIndicator() {
+        if (emptyState) {
+          emptyState.remove();
         }
 
-        function addTypingIndicator() {
-            if (emptyState) {
-                emptyState.remove();
-            }
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message assistant";
+        messageDiv.id = "typingMessage";
 
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message assistant';
-            messageDiv.id = 'typingMessage';
+        const avatar = document.createElement("div");
+        avatar.className = "message-avatar";
+        avatar.textContent = "AI";
 
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = 'AI';
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            contentDiv.innerHTML = `
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "message-content";
+        contentDiv.innerHTML = `
                 <div class="typing-indicator">
                     <span></span>
                     <span></span>
@@ -591,87 +1152,93 @@
                 </div>
             `;
 
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(contentDiv);
-            messagesContainer.appendChild(messageDiv);
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(contentDiv);
+        messagesContainer.appendChild(messageDiv);
 
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-            return contentDiv;
+        return contentDiv;
+      }
+
+      function removeTypingIndicator() {
+        const typing = document.getElementById("typingMessage");
+        if (typing) {
+          typing.remove();
+        }
+      }
+
+      function formatMessage(text) {
+        // Basic markdown-like formatting
+        let formatted = text
+          .replace(/```(\w*)\n?([\s\S]*?)```/g, "<pre><code>$2</code></pre>")
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\n\n/g, "</p><p>")
+          .replace(/\n/g, "<br>");
+
+        return `<p>${formatted}</p>`;
+      }
+
+      async function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message || isGenerating) return;
+
+        isGenerating = true;
+        sendButton.disabled = true;
+        messageInput.value = "";
+        messageInput.style.height = "auto";
+
+        addMessage("user", message);
+        conversationHistory.push({ role: "user", content: message });
+
+        const typingContent = addTypingIndicator();
+
+        try {
+          const response = await fetch(`${API_URL}/v1/chat/completions`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "default",
+              messages: conversationHistory,
+              stream: false,
+              temperature: 0.7,
+              max_tokens: 512,
+              top_p: 0.9,
+              top_k: 40,
+              repeat_penalty: 1.1,
+              stop: ["<|end|>", "<|user|>", "<|endoftext|>"],
+            }),
+          });
+
+          removeTypingIndicator();
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const fullResponse = data.choices?.[0]?.message?.content || "";
+          addMessage("assistant", fullResponse);
+          conversationHistory.push({
+            role: "assistant",
+            content: fullResponse,
+          });
+        } catch (error) {
+          removeTypingIndicator();
+          addMessage(
+            "assistant",
+            "Sorry, there was an error processing your request. Please try again."
+          );
+          console.error("Error:", error);
         }
 
-        function removeTypingIndicator() {
-            const typing = document.getElementById('typingMessage');
-            if (typing) {
-                typing.remove();
-            }
-        }
+        isGenerating = false;
+        sendButton.disabled = false;
+        messageInput.focus();
+      }
 
-        function formatMessage(text) {
-            // Basic markdown-like formatting
-            let formatted = text
-                .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-                .replace(/`([^`]+)`/g, '<code>$1</code>')
-                .replace(/\n\n/g, '</p><p>')
-                .replace(/\n/g, '<br>');
-
-            return `<p>${formatted}</p>`;
-        }
-
-        async function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message || isGenerating) return;
-
-            isGenerating = true;
-            sendButton.disabled = true;
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-
-            addMessage('user', message);
-            conversationHistory.push({ role: 'user', content: message });
-
-            const typingContent = addTypingIndicator();
-
-            try {
-                const response = await fetch(`${API_URL}/v1/chat/completions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: 'default',
-                        messages: conversationHistory,
-                        stream: false,
-                        temperature: 0.7,
-                        max_tokens: 512,
-                        top_p: 0.9,
-                        top_k: 40,
-                        repeat_penalty: 1.1,
-                        stop: ['<|end|>', '<|user|>', '<|endoftext|>']
-                    })
-                });
-
-                removeTypingIndicator();
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                const fullResponse = data.choices?.[0]?.message?.content || '';
-                addMessage('assistant', fullResponse);
-                conversationHistory.push({ role: 'assistant', content: fullResponse });
-
-            } catch (error) {
-                removeTypingIndicator();
-                addMessage('assistant', 'Sorry, there was an error processing your request. Please try again.');
-                console.error('Error:', error);
-            }
-
-            isGenerating = false;
-            sendButton.disabled = false;
-            messageInput.focus();
-        }
     </script>
-</body>
+  </body>
 </html>

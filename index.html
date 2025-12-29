@@ -679,11 +679,11 @@
         }
         .input-wrapper textarea {
           margin-left: 8px;
-          font-size: 14px;
+          font-size: 16px;
         }
         .messages {
-          min-height: 450px;
-          max-height: 450px;
+          min-height: 250px;
+          max-height: 350px;
           padding: 10px;
           margin: 10px 10px 0 10px;
         }
@@ -973,20 +973,16 @@
                 <label for="messageInput" class="visually-hidden"
                   >Message</label
                 >
-                <div
-                  class="input-wrapper"
-                  onclick="document.getElementById('messageInput').focus()"
-                >
+                <div class="input-wrapper">
                   <textarea
                     id="messageInput"
                     placeholder="Ask something"
                     rows="1"
-                    onkeydown="handleKeyDown(event)"
                   ></textarea>
                   <button
+                    type="button"
                     class="send-button"
                     id="sendButton"
-                    onclick="sendMessage()"
                     aria-label="Send message"
                   >
                     <svg
@@ -1100,12 +1096,26 @@
         this.style.height = Math.min(this.scrollHeight, 200) + "px";
       });
 
-      function handleKeyDown(event) {
+      // Handle Enter key to send message
+      messageInput.addEventListener("keydown", function (event) {
         if (event.key === "Enter" && !event.shiftKey) {
           event.preventDefault();
           sendMessage();
         }
-      }
+      });
+
+      // Handle send button click and touch
+      sendButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        sendMessage();
+      });
+
+      // Fallback for Firefox mobile
+      sendButton.addEventListener("touchend", function (event) {
+        event.preventDefault();
+        sendMessage();
+      });
 
       function addMessage(role, content) {
         if (emptyState) {

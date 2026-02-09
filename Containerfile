@@ -20,7 +20,7 @@ RUN git clone --depth 1 https://git.distrust.co/public/attestation-widget.git .
 FROM stagex/pallet-gcc-cmake-busybox AS build
 COPY --from=ca-certificates . /
 COPY --from=curl . /
-ARG VERSION=b4663
+ARG VERSION=b4958
 RUN curl -fsSL --retry 5 -o /llama.cpp.tar.gz https://github.com/ggerganov/llama.cpp/archive/refs/tags/${VERSION}.tar.gz && \
     tar -xzf /llama.cpp.tar.gz
 WORKDIR /llama.cpp-${VERSION}

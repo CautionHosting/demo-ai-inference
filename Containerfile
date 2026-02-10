@@ -55,7 +55,7 @@ RUN mkdir -p /models && \
 FROM scratch AS shell
 COPY --from=core-busybox . /
 COPY --from=core-musl . /
-COPY --from=build /usr/lib/ /usr/lib
+COPY --from=core-gcc /usr/lib/ /usr/lib
 
 COPY --from=build /rootfs/ /
 WORKDIR /workdir

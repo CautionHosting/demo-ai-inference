@@ -5,7 +5,7 @@ FROM stagex/core-git@sha256:6b3e0055f6aeaa8465f207a871db2c63a939cd7406113e9d769f
 FROM stagex/core-ca-certificates@sha256:d135f1189e9b232eb7316626bf7858534c5540b2fc53dced80a4c9a95f26493e AS ca-certificates
 FROM stagex/core-curl@sha256:bc8bab43d96a9167fbb85022ea773644a45ef335e7a9b747f203078973fa988e AS curl
 FROM stagex/pallet-nodejs@sha256:1f705b58321b17e87ea68c04431ad83be6e6b64253d0443be4c61501902d57c3 AS pallet-nodejs
-FROM stagex/pallet-gcc-cmake-busybox@sha256:41cd386c19d8a5b34bec3d929dfeee5c1967663e27e7fa81dde6d14b419ee95e AS pallet-gcc-cmake-busbox
+FROM stagex/pallet-gcc-cmake-busybox@sha256:41cd386c19d8a5b34bec3d929dfeee5c1967663e27e7fa81dde6d14b419ee95e AS pallet-gcc-cmake-busybox
 
 FROM pallet-nodejs AS js-builder
 COPY --from=git . /

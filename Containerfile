@@ -68,4 +68,4 @@ COPY --from=js-builder /build/attestation-widget/dist/index.js /workdir/public/a
 
 EXPOSE 8083
 
-CMD ["/usr/bin/llama-server", "--host", "0.0.0.0", "--port", "8083", "-m", "/workdir/models/model.gguf", "--path", "/workdir/public", "--ctx-size", "4096"]
+CMD ["/usr/bin/llama-server", "--host", "0.0.0.0", "--port", "8080", "-m", "/workdir/models/model.gguf", "--path", "/workdir/public", "--ctx-size", "4096"]

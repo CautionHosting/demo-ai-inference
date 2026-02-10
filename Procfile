@@ -1,6 +1,6 @@
 run: /usr/bin/llama-server --host 0.0.0.0 --port 8080 -m /workdir/models/model.gguf --path /workdir/public --ctx-size 2048 -t 8
 domain: chat.caution.dev
-source: https://codeberg.org/caution/demo-ai-inference
+app_sources: git@codeberg.org/caution/demo-ai-inference.git
 memory_mb: 55000
 cpus: 14 
 nocache: true

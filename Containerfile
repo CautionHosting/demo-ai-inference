@@ -6,6 +6,7 @@ FROM stagex/core-ca-certificates@sha256:d135f1189e9b232eb7316626bf7858534c5540b2
 FROM stagex/core-curl@sha256:bc8bab43d96a9167fbb85022ea773644a45ef335e7a9b747f203078973fa988e AS curl
 FROM stagex/pallet-nodejs@sha256:1f705b58321b17e87ea68c04431ad83be6e6b64253d0443be4c61501902d57c3 AS pallet-nodejs
 FROM stagex/pallet-gcc-cmake-busybox@sha256:41cd386c19d8a5b34bec3d929dfeee5c1967663e27e7fa81dde6d14b419ee95e AS pallet-gcc-cmake-busybox
+FROM stagex/user-llama-cpp@sha256:8300184b1f65fa7014ee6c06cab343ee55022b228f43f7960c2355fb9cc4a380 AS llama
 
 FROM pallet-nodejs AS js-builder
 COPY --from=git . /
@@ -18,30 +19,6 @@ RUN npm install && npm run build
 WORKDIR /build/attestation-widget
 RUN git clone --depth 1 https://git.distrust.co/public/attestation-widget.git .
 
-FROM pallet-gcc-cmake-busybox AS build
-COPY --from=ca-certificates . /
-COPY --from=curl . /
-ARG VERSION=b4958
-RUN curl -fsSL --retry 5 -o /llama.cpp.tar.gz https://github.com/ggerganov/llama.cpp/archive/refs/tags/${VERSION}.tar.gz && \
-    tar -xzf /llama.cpp.tar.gz
-WORKDIR /llama.cpp-${VERSION}
-RUN <<-EOF
-    set -eux
-    mkdir -p .git
-    touch .git/index
-    cmake -B build -G Ninja \
-        -DBUILD_TESTING=OFF \
-        -DGGML_BUILD_NUMBER=1 \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_INSTALL_LIBDIR=lib \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DGGML_NATIVE=OFF \
-        -DLLAMA_BUILD_EXAMPLES=ON \
-        -DLLAMA_BUILD_SERVER=ON
-    cmake --build build
-    DESTDIR="/rootfs" cmake --install build
-EOF
-
 FROM pallet-gcc-cmake-busybox AS download
 COPY --from=ca-certificates . /
 COPY --from=curl . /
@@ -52,12 +29,11 @@ RUN mkdir -p /models && \
         echo "${MODEL_SHA256}  /models/model.gguf" | sha256sum -c -
 
 
-FROM scratch AS shell
+FROM pallet-gcc-cmake-busybox AS shell
+ENTRYPOINT []
 COPY --from=core-busybox . /
 COPY --from=core-musl . /
-COPY --from=core-gcc /usr/lib/ /usr/lib
-
-COPY --from=build /rootfs/ /
+COPY --from=llama . /
 WORKDIR /workdir
 
 COPY --from=download /models/model.gguf /workdir/models/model.gguf
@@ -66,6 +42,6 @@ COPY --from=js-builder /build/steve/steve-js-sdk/dist/enclave-sw.js /workdir/pub
 COPY --from=js-builder /build/steve/steve-js-sdk/dist/register.js /workdir/public/register.js
 COPY --from=js-builder /build/attestation-widget/dist/index.js /workdir/public/attestation-widget.js
 
-EXPOSE 8083
+EXPOSE 8080
 
 CMD ["/usr/bin/llama-server", "--host", "0.0.0.0", "--port", "8080", "-m", "/workdir/models/model.gguf", "--path", "/workdir/public", "--ctx-size", "4096"]

@@ -5,6 +5,7 @@ FROM stagex/core-git@sha256:6b3e0055f6aeaa8465f207a871db2c63a939cd7406113e9d769f
 FROM stagex/core-ca-certificates@sha256:d135f1189e9b232eb7316626bf7858534c5540b2fc53dced80a4c9a95f26493e AS ca-certificates
 FROM stagex/core-curl@sha256:bc8bab43d96a9167fbb85022ea773644a45ef335e7a9b747f203078973fa988e AS curl
 FROM stagex/pallet-nodejs@sha256:1f705b58321b17e87ea68c04431ad83be6e6b64253d0443be4c61501902d57c3 AS pallet-nodejs
+FROM stagex/pallet-gcc-cmake-busybox@sha256:41cd386c19d8a5b34bec3d929dfeee5c1967663e27e7fa81dde6d14b419ee95e AS pallet-gcc-cmake-busbox
 
 FROM pallet-nodejs AS js-builder
 COPY --from=git . /
@@ -17,7 +18,7 @@ RUN npm install && npm run build
 WORKDIR /build/attestation-widget
 RUN git clone --depth 1 https://git.distrust.co/public/attestation-widget.git .
 
-FROM stagex/pallet-gcc-cmake-busybox AS build
+FROM pallet-gcc-cmake-busybox AS build
 COPY --from=ca-certificates . /
 COPY --from=curl . /
 ARG VERSION=b4958
@@ -41,7 +42,7 @@ RUN <<-EOF
     DESTDIR="/rootfs" cmake --install build
 EOF
 
-FROM stagex/pallet-gcc-cmake-busybox AS download
+FROM pallet-gcc-cmake-busybox AS download
 COPY --from=ca-certificates . /
 COPY --from=curl . /
 ARG MODEL_SHA256=d6d25bf078321bea4a079c727b273cb0b5a2e0b4cf3add0f7a2c8e43075c414f

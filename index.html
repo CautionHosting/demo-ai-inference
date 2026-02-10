@@ -830,16 +830,19 @@
                   This is a live demo of verifiable AI inference built on
                   Caution, running inside a secure enclave. The conversation is
                   end-to-end encrypted and only decryptable by you and the
-                  enclave.
+                  enclave, and you have the ability to prove exactly what source code 
+                  was used, down to the kernel, with a cryptographic proof.
                 </p>
               </div>
 
               <div class="info-text" id="why-section">
                 <h2>Problem</h2>
                 <p>
-                  Most confidential compute solutions can prove that code hasn't
-                  changed, but not what code was originally loaded, and they
-                  still expose data to untrusted systems outside of the enclave.
+                  Most confidential compute solutions can prove that a workload is running inside of
+                  genuine confidential compute hardware, and the hash of the code that was deployed, 
+                  but no ability to tie the deployed code to its originating source code. Additionally
+                  many confidential compute solutions improperly handle encryption and expose data to
+                  untrusted parts of the system.
                 </p>
               </div>
 

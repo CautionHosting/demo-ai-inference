@@ -42,6 +42,6 @@ COPY --from=js-builder /build/steve/steve-js-sdk/dist/enclave-sw.js /workdir/pub
 COPY --from=js-builder /build/steve/steve-js-sdk/dist/register.js /workdir/public/register.js
 COPY --from=js-builder /build/attestation-widget/dist/index.js /workdir/public/attestation-widget.js
 
-EXPOSE 8080
+EXPOSE 8083
 
-CMD ["/usr/bin/llama-server", "--host", "0.0.0.0", "--port", "8080", "-m", "/workdir/models/model.gguf", "--path", "/workdir/public", "--ctx-size", "4096"]
+CMD ["/usr/bin/llama-server", "--host", "0.0.0.0", "--port", "8083", "-m", "/workdir/models/model.gguf", "--path", "/workdir/public", "--ctx-size", "4096"]

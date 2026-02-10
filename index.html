@@ -353,12 +353,22 @@
       }
       .info-well a {
         color: var(--color-accent);
-        text-decoration: none;
-      }
-      .info-well a span {
         text-decoration: underline;
         text-decoration-style: dotted;
         text-underline-offset: 3px;
+      }
+      .info-well a[target="_blank"]::after {
+        content: " \2197";
+        text-decoration: none;
+        display: inline-block;
+      }
+      .info-well code {
+        font-family: "SF Mono", Monaco, "Courier New", monospace;
+        font-size: 0.85em;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        word-break: break-all;
       }
       .info-text {
         max-width: 450px;
@@ -837,55 +847,21 @@
                 <h2>Solution</h2>
                 <p>
                   Caution combines
-                  <a
-                    href="https://codeberg.org/caution/platform/wiki/Verifying-an-app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    ><span>verifiability</span
-                    ><svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      style="vertical-align: middle; margin-left: 4px"
-                    >
-                      <path d="M15 3h6v6" />
-                      <path d="M10 14 21 3" />
-                      <path
-                        d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
-                      /></svg
-                  ></a>
+                  <a href="https://docs.caution.co/concepts/verifiability/" target="_blank" rel="noopener noreferrer">verifiability</a>
                   and
-                  <a
-                    href="https://git.distrust.co/public/steve"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    ><span>true end-to-end encryption</span
-                    ><svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      style="vertical-align: middle; margin-left: 4px"
-                    >
-                      <path d="M15 3h6v6" />
-                      <path d="M10 14 21 3" />
-                      <path
-                        d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
-                      /></svg
-                  ></a>
+                  <a href="https://docs.caution.co/concepts/encryption/" target="_blank" rel="noopener noreferrer">true end-to-end encryption</a>
                   to prove what code runs inside the enclave, and keep
                   conversations private.
+                </p>
+              </div>
+
+              <div class="info-text" id="verify-section">
+                <h2>How to verify</h2>
+                <p>
+                  1. Install the <a href="https://codeberg.org/caution/cli" target="_blank" rel="noopener noreferrer">Caution CLI</a>
+                </p>
+                <p>
+                  2. Run <code>caution verify --attestation-url https://chat.caution.dev/attestation</code>
                 </p>
               </div>
 

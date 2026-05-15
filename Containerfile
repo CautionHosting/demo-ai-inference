@@ -22,10 +22,10 @@ RUN git clone --depth 1 https://git.distrust.co/public/attestation-widget.git .
 FROM pallet-gcc-cmake-busybox AS download
 COPY --from=ca-certificates . /
 COPY --from=curl . /
-ARG MODEL_SHA256=d6d25bf078321bea4a079c727b273cb0b5a2e0b4cf3add0f7a2c8e43075c414f
+ARG MODEL_SHA256=74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db
 RUN mkdir -p /models && \
     curl -fSL --retry 5 --retry-delay 10 -o /models/model.gguf \
-    https://huggingface.co/bartowski/Phi-3.1-mini-4k-instruct-GGUF/resolve/main/Phi-3.1-mini-4k-instruct-Q4_K_M.gguf && \
+    https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf && \
         echo "${MODEL_SHA256}  /models/model.gguf" | sha256sum -c -
 
 
@@ -44,4 +44,4 @@ COPY --from=js-builder /build/attestation-widget/dist/index.js /workdir/public/a
 
 EXPOSE 8083
 
-CMD ["/usr/bin/llama-server", "--host", "0.0.0.0", "--port", "8083", "-m", "/workdir/models/model.gguf", "--path", "/workdir/public", "--ctx-size", "4096"]
+CMD ["/usr/bin/llama-server", "--host", "0.0.0.0", "--port", "8083", "-m", "/workdir/models/model.gguf", "--path", "/workdir/public", "--ctx-size", "2048", "-t", "8"]

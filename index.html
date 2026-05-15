@@ -357,7 +357,7 @@
         text-decoration-style: dotted;
         text-underline-offset: 3px;
       }
-      .info-well a[target="_blank"]::after {
+      .info-well a[target="_blank"]:not(.icon-link)::after {
         content: " \2197";
         text-decoration: none;
         display: inline-block;
@@ -861,7 +861,7 @@
               <div class="info-text" id="verify-section">
                 <h2>How to verify</h2>
                 <p>
-                  1. Install the <a href="https://codeberg.org/caution/cli" target="_blank" rel="noopener noreferrer">Caution CLI</a>
+                  1. Install the <a href="https://codeberg.org/caution/platform/src/branch/main/src/cli" target="_blank" rel="noopener noreferrer">Caution CLI</a>
                 </p>
                 <p>
                   2. Run <code>caution verify --attestation-url https://chat.caution.dev/attestation</code>
@@ -980,7 +980,7 @@
                     target="_blank"
                     rel="noopener noreferrer"
                     >llama.cpp</a
-                  >. Phi-3.1-mini (3.8B). Runs on CPU today. GPU support coming.
+                  >; Qwen2.5 0.5B runs on CPU today. GPU support coming.
                 </p>
               </div>
             </div>
@@ -1016,6 +1016,7 @@
         // Then try to set up the service worker
         try {
           const isDev =
+            window.location.protocol === "http:" ||
             window.location.hostname === "localhost" ||
             window.location.hostname === "127.0.0.1";
           const passthroughPaths = [
@@ -1025,7 +1026,7 @@
             "/attestation-widget.js",
           ];
           if (isDev) {
-            passthroughPaths.push("/v1/*");
+            passthroughPaths.push("/v1/chat/completions", "/v1/models");
           }
 
           client = await registerEnclaveServiceWorker({
@@ -1064,7 +1065,7 @@
       const sendButton = document.getElementById("sendButton");
       const emptyState = document.getElementById("emptyState");
 
-      const SYSTEM_PROMPT = `You are a helpful AI assistant. Answer questions directly and concisely.`;
+      const SYSTEM_PROMPT = `You are a helpful AI assistant. Answer in one or two short sentences.`;
 
       let conversationHistory = [{ role: "system", content: SYSTEM_PROMPT }];
       let isGenerating = false;
@@ -1194,25 +1195,57 @@
             body: JSON.stringify({
               model: "default",
               messages: conversationHistory,
-              stream: false,
+              stream: true,
               temperature: 0.7,
-              max_tokens: 512,
+              max_tokens: 64,
               top_p: 0.9,
               top_k: 40,
               repeat_penalty: 1.1,
-              stop: ["<|end|>", "<|user|>", "<|endoftext|>"],
+              stop: ["<|im_end|>", "<|end|>", "<|user|>", "<|endoftext|>"],
             }),
           });
-
-          removeTypingIndicator();
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const data = await response.json();
-          const fullResponse = data.choices?.[0]?.message?.content || "";
-          addMessage("assistant", fullResponse);
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          let fullResponse = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+
+              const data = line.slice(6).trim();
+              if (!data || data === "[DONE]") continue;
+
+              const parsed = JSON.parse(data);
+              const delta =
+                parsed.choices?.[0]?.delta?.content ||
+                parsed.choices?.[0]?.message?.content ||
+                parsed.choices?.[0]?.text ||
+                "";
+              if (!delta) continue;
+
+              fullResponse += delta;
+              typingContent.innerHTML = formatMessage(fullResponse);
+              messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+          }
+
+          if (!fullResponse) {
+            throw new Error("Empty response from model");
+          }
+
           conversationHistory.push({
             role: "assistant",
             content: fullResponse,

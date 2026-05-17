@@ -5,4 +5,5 @@ memory_mb: 55000
 cpus: 14 
 nocache: true
 e2e: true
-
+ports: 8083
+http_port: 8083

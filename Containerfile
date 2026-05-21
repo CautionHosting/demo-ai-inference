@@ -12,12 +12,22 @@ FROM pallet-nodejs AS js-builder
 COPY --from=git . /
 COPY --from=ca-certificates . /
 COPY --from=curl . /
+ARG STEVE_COMMIT=1dee1a0d55d1106fd8a237c09733406489cc8d12
+ARG ATTESTATION_WIDGET_COMMIT=47b24ef7e3fd8d51982678b78cd0c62afb31e4f3
 WORKDIR /build/steve
-RUN git clone --depth 1 https://git.distrust.co/public/steve.git .
+RUN git init . && \
+    git remote add origin https://git.distrust.co/public/steve.git && \
+    git fetch --depth 1 origin "${STEVE_COMMIT}" && \
+    git checkout --detach FETCH_HEAD && \
+    test "$(git rev-parse HEAD)" = "${STEVE_COMMIT}"
 WORKDIR /build/steve/steve-js-sdk
 RUN npm install && npm run build
 WORKDIR /build/attestation-widget
-RUN git clone --depth 1 https://git.distrust.co/public/attestation-widget.git .
+RUN git init . && \
+    git remote add origin https://git.distrust.co/public/attestation-widget.git && \
+    git fetch --depth 1 origin "${ATTESTATION_WIDGET_COMMIT}" && \
+    git checkout --detach FETCH_HEAD && \
+    test "$(git rev-parse HEAD)" = "${ATTESTATION_WIDGET_COMMIT}"
 
 FROM pallet-gcc-cmake-busybox AS download
 COPY --from=ca-certificates . /

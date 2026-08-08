@@ -13,11 +13,11 @@ COPY --from=git . /
 COPY --from=ca-certificates . /
 COPY --from=curl . /
 WORKDIR /build/steve
-RUN git clone --depth 1 https://git.distrust.co/public/steve.git .
-WORKDIR /build/steve/steve-js-sdk
-RUN npm install && npm run build
+RUN git clone --depth 1 https://git.distrust.co/public/steve.git . && git fetch --depth 1 origin 389ae3a50d3e8037573155987249e31239a876aa && git checkout 389ae3a50d3e8037573155987249e31239a876aa
+
 WORKDIR /build/attestation-widget
-RUN git clone --depth 1 https://git.distrust.co/public/attestation-widget.git .
+RUN git clone --depth 1 https://git.distrust.co/public/attestation-widget.git . && git fetch --depth 1 origin 47b24ef7e3fd8d51982678b78cd0c62afb31e4f3 && git checkout 47b24ef7e3fd8d51982678b78cd0c62afb31e4f3
+
 
 FROM pallet-gcc-cmake-busybox AS download
 COPY --from=ca-certificates . /

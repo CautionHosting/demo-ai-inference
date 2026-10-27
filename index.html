@@ -46,10 +46,6 @@
       type="image/svg+xml"
       href="data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='120' height='120' rx='40' fill='white'/%3E%3Cline x1='35.3151' y1='72.5648' x2='25.257' y2='89.8071' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='45.1345' y1='90.4808' x2='25.173' y2='90.4808' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='70.7604' y1='43.6464' x2='60.6878' y2='26.4125' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='50.3315' y1='43.3924' x2='60.1424' y2='26.0083' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='5.25' y1='-5.25' x2='25.2115' y2='-5.25' transform='matrix(0.503871 0.863779 0.863779 -0.503871 88.4976 65.3846)' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3Cline x1='5.25' y1='-5.25' x2='25.2115' y2='-5.25' transform='matrix(1 0 0 -1 71.5386 85.2308)' stroke='black' stroke-width='10.5' stroke-linecap='round'/%3E%3C/svg%3E"
     />
-    <link
-      rel="apple-touch-icon"
-      href="https://git.distrust.co/caution/website/raw/branch/main/assets/favicons/favicon-caution-96x96.png"
-    />
     <style>
       * {
         margin: 0;
@@ -774,7 +770,7 @@
             </a>
             <div class="icon-links icon-links-header">
               <a
-                href="https://codeberg.org/caution/demo-ai-inference"
+                href="https://git.caution.co/public/demo-ai-inference"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="icon-link"
@@ -861,7 +857,7 @@
               <div class="info-text" id="verify-section">
                 <h2>How to verify</h2>
                 <p>
-                  1. Install the <a href="https://codeberg.org/caution/cli" target="_blank" rel="noopener noreferrer">Caution CLI</a>
+                  1. Install the <a href="https://git.caution.co/public/cli" target="_blank" rel="noopener noreferrer">Caution CLI</a>
                 </p>
                 <p>
                   2. Run <code>caution verify --attestation-url https://chat.caution.dev/attestation</code>
@@ -870,7 +866,7 @@
 
               <div class="icon-links icon-links-well">
                 <a
-                  href="https://codeberg.org/caution/demo-ai-inference"
+                  href="https://git.caution.co/public/demo-ai-inference"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="icon-link"
@@ -963,6 +959,7 @@
                     class="send-button"
                     id="sendButton"
                     aria-label="Send message"
+                    disabled
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -1013,11 +1010,13 @@
           console.error("Widget load error:", widgetError);
         }
 
+        const sendButton = document.getElementById("sendButton");
+        const isDev =
+          window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1";
+
         // Then try to set up the service worker
         try {
-          const isDev =
-            window.location.hostname === "localhost" ||
-            window.location.hostname === "127.0.0.1";
           const passthroughPaths = [
             "/",
             "/enclave-sw.js",
@@ -1041,12 +1040,21 @@
           await client.reset();
           await client.initialize();
 
+          // Only allow chatting once the encrypted session is up
+          sendButton.disabled = false;
+
           // Now verify attestation
           if (widget) {
             widget.verify();
           }
         } catch (error) {
           console.error("Service worker error:", error);
+          if (isDev) {
+            sendButton.disabled = false;
+          } else {
+            document.getElementById("messageInput").placeholder =
+              "Encrypted session unavailable. Reload to retry.";
+          }
           if (widget) {
             widget.verify();
           }
@@ -1065,6 +1073,10 @@
       const emptyState = document.getElementById("emptyState");
 
       const SYSTEM_PROMPT = `You are a helpful AI assistant. Answer questions directly and concisely.`;
+
+      // Keep the prompt within the 2048-token context; odd so the window
+      // starts on a user turn
+      const MAX_HISTORY_MESSAGES = 7;
 
       let conversationHistory = [{ role: "system", content: SYSTEM_PROMPT }];
       let isGenerating = false;
@@ -1160,9 +1172,18 @@
         }
       }
 
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
       function formatMessage(text) {
         // Basic markdown-like formatting
-        let formatted = text
+        let formatted = escapeHtml(text)
           .replace(/```(\w*)\n?([\s\S]*?)```/g, "<pre><code>$2</code></pre>")
           .replace(/`([^`]+)`/g, "<code>$1</code>")
           .replace(/\n\n/g, "</p><p>")
@@ -1173,7 +1194,7 @@
 
       async function sendMessage() {
         const message = messageInput.value.trim();
-        if (!message || isGenerating) return;
+        if (!message || isGenerating || sendButton.disabled) return;
 
         isGenerating = true;
         sendButton.disabled = true;
@@ -1193,10 +1214,13 @@
             },
             body: JSON.stringify({
               model: "default",
-              messages: conversationHistory,
+              messages: [
+                conversationHistory[0],
+                ...conversationHistory.slice(1).slice(-MAX_HISTORY_MESSAGES),
+              ],
               stream: false,
               temperature: 0.7,
-              max_tokens: 512,
+              max_tokens: 256,
               top_p: 0.9,
               top_k: 40,
               repeat_penalty: 1.1,
@@ -1219,6 +1243,8 @@
           });
         } catch (error) {
           removeTypingIndicator();
+          // Drop the unanswered message so a retry doesn't send it twice
+          conversationHistory.pop();
           addMessage(
             "assistant",
             "Sorry, there was an error processing your request. Please try again."

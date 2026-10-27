@@ -22,14 +22,8 @@ out/shell.digest: Containerfile index.html | out
 	@touch $@
 
 .PHONY: shell
-shell: out/shell.digest models
-	docker run -it -v ./models:/workdir/models $(IMAGE_NAME)
-
-.PHONY: reproduce
-vm: out/shell.digest models
-	docker run -it -v ./models:/workdir/models $(IMAGE_NAME) sh -c "\
-		llama-cpp --version
-		"
+shell: out/shell.digest
+	docker run -it $(IMAGE_NAME)
 
 .PHONY: clean
 clean:
@@ -51,7 +45,3 @@ rebuild: stop models
 	docker run -d --rm -p 8083:8083 -v ./models:/workdir/models $(IMAGE_NAME) \
 		/usr/bin/llama-server --host 0.0.0.0 --port 8083 -m /workdir/models/phi-3.1-mini.gguf --path /workdir/public --ctx-size 4096 -t 12
 	@echo "llmshell running at http://localhost:8083"
-
-.PHONY: update
-update:
-	python3 scripts/update.py

@@ -6,7 +6,7 @@ caution {
 enclave "default" {
   build {
     app_sources = [
-      "https://codeberg.org/caution/demo-ai-inference.git"
+      "https://git.caution.co/public/demo-ai-inference.git"
     ]
     cache = false
   }
@@ -47,7 +47,7 @@ enclave "default" {
       "--ctx-size",
       "2048",
       "-t",
-      "8"
+      "12"
     ]
   }
 }
